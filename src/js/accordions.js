@@ -1,15 +1,15 @@
 /* -------------------------------------------------
-Accordion BLock class to handle the opening/closing
-of the accoridon blocks!
+Accordion class to handle the opening/closing
+of any accoridon content!
 ------------------------------------------------- */
 
-export default class AccordionBlock {
+export default class Accordion {
   constructor(block, options = {}) {
     // The block is the whole AccordionBlock container
     this.block = block;
     // Here we can add some custom settings!
     this.settings = {
-      class: 'js-accordion-block',
+      class: 'js-accordion',
       duration: 750, //ms
     }
 
