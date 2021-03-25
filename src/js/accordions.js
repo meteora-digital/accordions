@@ -1,148 +1,137 @@
-import { attach, Event, nodeArray, objectAssign, offset } from '@meteora-digital/helpers';
+/* -------------------------------------------------
+Accordion BLock class to handle the opening/closing
+of the accoridon blocks!
+------------------------------------------------- */
 
-class Equalizer {
-  constructor(el, options = {}) {
-    this.container = el;
-    this.children = this.getChildren();
-    this.rows = this.getRows();
-    this.event = new Event('equalized');
-    this.timeout = null;
-    window.equalizing = null;
+export default class AccordionBlock {
+  constructor(block, options = {}) {
+    // The block is the whole AccordionBlock container
+    this.block = block;
+    // Here we can add some custom settings!
+    this.settings = {
+      class: 'js-accordion-block',
+      duration: 750, //ms
+    }
 
-    this.settings = objectAssign({
-      rows: false,
-    }, options);
+    this.openEvents = 0;
+    this.closeEvents = 0;
 
-    attach(window, 'resize', () => this.equalize(), 250);
+    // ObjectAssign all the user's options
+    for (let key in this.settings) {
+      // Just check if the key exists in the user's options and if it does override the defaults
+      if (options[key]) this.settings[key] = options[key];
+    }
 
-    attach(window, 'resize', () => {
-      this.rows = this.getRows();
-      this.equalize();
-    }, 2500);
+    // Initialise the accordion block
+    this.init();
   }
 
-  equalize() {
-    clearTimeout(this.timeout);
+  init() {
+    // This will store all the relevant elements for us
+    this.elements = {};
 
-    this.timeout = setTimeout(() => {
-      if (this.settings.rows) {
-        for (let group in this.rows) this.matchHeight(this.rows[group]);
-      }else {
-        this.matchHeight(this.children);
+    // Find the item elements. This will be found using this.settings.class followed by --item
+    this.elements.items = this.block.querySelectorAll(`.${this.settings.class}--item`) || false;
+
+    // Ideally we want the elements in an array, not a nodeList
+    this.items = [];
+
+    // Loop the nodeList and push each element inside of an object to the items array
+    for (let i = 0; i < this.elements.items.length; i++) this.items.push({
+      item: this.elements.items[i],
+      // Find the trigger element
+      trigger: this.elements.items[i].querySelector(`.${this.settings.class}--trigger`) || false,
+      // Find the target element
+      target: this.elements.items[i].querySelector(`.${this.settings.class}--target`) || false,
+      open: false,
+      // We'll use this for the animations :)
+      height: {
+        current: 0,
+        target: 0,
+        full: 0,
       }
-    }, 500);
-  }
+    });
 
-  getChildren() {
-    this.children = {};
-    this.ids = this.container.getAttribute('data-equalize');
+    // loop the items
+    this.items.forEach((item) => {
+    // If we have both a trigger and a target
+      if (item.trigger && item.target) {
+        // When we click the trigger
+        item.trigger.addEventListener('click', (e) => {
+          e.preventDefault();
 
-    if (this.ids === "") {
-      this.children.main = nodeArray(this.container.querySelectorAll('[data-equalize-watch]'));
-    }else {
-      try {
-        this.container.getAttribute('data-equalize').split(',').forEach((id) => this.children[id] = nodeArray(this.container.querySelectorAll(`[data-equalize-watch="${id}"]`)));
-      }catch (err) {
-        this.children[this.ids] = nodeArray(this.container.querySelectorAll('[data-equalize-watch]'));
+          // Set the item's current height to it's current height ¯\_(ツ)_/¯
+          item.height.current = item.target.offsetHeight;
+
+          // Set the target's height to auto!
+          item.target.style.height = 'auto';
+
+          // Save the target's height
+          item.height.full = item.target.offsetHeight;
+
+          // Set the target's height to auto!
+          item.target.style.height = item.height.current + 'px';
+
+          if (item.open) {
+            // It is no longer open
+            item.open = false;
+            // Toggle some classes for css usage
+            item.item.classList.add(`${this.settings.class}--closed`);
+            item.item.classList.remove(`${this.settings.class}--open`);
+
+            // Set the target height to 0!
+            item.height.target = 0;
+
+            // Now we need to animate this change
+            this.close(item);
+          } else {
+            // It is no longer closed
+            item.open = true;
+            // Toggle some classes for css usage
+            item.item.classList.add(`${this.settings.class}--open`);
+            item.item.classList.remove(`${this.settings.class}--closed`);
+
+             // Set the target height to full!
+            item.height.target = item.height.full;
+
+            // Now we need to animate this change
+            this.open(item);
+          }
+        });
       }
-    }
-
-
-    return this.children;
+    });
   }
 
-  getRows() {
-    this.rows = {};
-    this.matchHeight(this.children);
+  ease(a,b) {
+    // Some carzy easing maths I dont understand ¯\_(ツ)_/¯
+    return ((1 - (a/b)^2) - 1) * 30 / this.settings.duration * b;
+  }
 
-    let offsetY = 0;
-
-    for (let group in this.children) {
-      this.rows[group] = {};
-      this.children[group].forEach((child) => {
-        offsetY = offset(child).y;
-        (this.rows[group][offsetY]) ? this.rows[group][offsetY].push(child) : this.rows[group][offsetY] = [child];
+  open(item = false) {
+    // We need to make sure we have an item, and that it's not already completely open
+    if (item && item.target.offsetHeight < item.height.target) {
+      window.requestAnimationFrame(() => {
+        // Add an eased amount to our current height
+        item.height.current += this.ease(item.height.current, item.height.full);
+        // Apply this Math.ceil(height) to our target
+        item.target.style.height = Math.ceil(item.height.current) + 'px';
+        // Continue this function :)
+        this.open(item);
       });
     }
-
-    return this.rows;
   }
 
-  matchHeight(children = false) {
-    clearTimeout(window.equalizing);
-
-    // Check to see if we passed in some children or not
-    if (children === false) children = this.children;
-
-    // loop through all the child groups
-    for (let group in children) {
-      // initialise the height at 0 for each group
-      this.height = 0;
-
-      // set height to auto so it can be adjusted
-      children[group].forEach((child) => {
-        child.style.height = 'auto';
+  close(item = false) {
+    // We need to make sure we have an item, and that it's not already completely shut
+    if (item && item.target.offsetHeight > item.height.target) {
+      window.requestAnimationFrame(() => {
+        // Remove an eased amount to our current height
+        item.height.current -= this.ease(item.height.current, item.height.full);
+        // Apply this Math.floor(height) to our target
+        item.target.style.height = Math.floor(item.height.current) + 'px';
+        // Continue this function :)
+        this.close(item);
       });
-
-      // set the height to the child's height if it is larger than the previous child
-      children[group].forEach((child) => {
-        if (child.clientHeight > this.height) this.height = child.clientHeight;
-      });
-
-      // set all children to the same height
-      children[group].forEach((child) => child.style.height = this.height + 'px');
     }
-
-    // send the equalized event to the window
-    this.complete();
-  }
-
-  complete() {
-    window.equalizing = setTimeout(() => {
-      window.dispatchEvent(this.event);
-    }, 100);
-  }
-
-  update() {
-    this.children = this.getChildren();
-    this.rows = this.getRows();
-    this.equalize();
   }
 }
-
-export default Equalizer;
-
-// ======================================================
-// JavaScript Usage
-// ======================================================
-
-// import Equalizer from './equalizer';
-
-// document.querySelectorAll('[data-equalize]').forEach((group) => new Equalizer(group));
-
-// ======================================================
-// HTML Usage
-// ======================================================
-
-// <section data-equalize>
-//   <div data-equalize-watch></div>
-//   <div data-equalize-watch></div>
-// </section>
-
-// OR ===================================================
-
-// <section data-equalize="selector">
-//   <div data-equalize-watch="selector"></div>
-//   <div data-equalize-watch="selector"></div>
-// </section>
-
-// OR ===================================================
-
-// <section data-equalize="selector1, selector2">
-//   <div data-equalize-watch="selector1">
-//      <div data-equalize-watch="selector2"></div>
-//   </div>
-//   <div data-equalize-watch="selector1">
-//      <div data-equalize-watch="selector2"></div>
-//   </div>
-// </section>

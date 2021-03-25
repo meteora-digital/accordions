@@ -5,179 +5,159 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _helpers = require("@meteora-digital/helpers");
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var Equalizer = /*#__PURE__*/function () {
-  function Equalizer(el) {
-    var _this = this;
-
+/* -------------------------------------------------
+Accordion BLock class to handle the opening/closing
+of the accoridon blocks!
+------------------------------------------------- */
+var AccordionBlock = /*#__PURE__*/function () {
+  function AccordionBlock(block) {
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-    _classCallCheck(this, Equalizer);
+    _classCallCheck(this, AccordionBlock);
 
-    this.container = el;
-    this.children = this.getChildren();
-    this.rows = this.getRows();
-    this.event = new _helpers.Event('equalized');
-    this.timeout = null;
-    window.equalizing = null;
-    this.settings = (0, _helpers.objectAssign)({
-      rows: false
-    }, options);
-    (0, _helpers.attach)(window, 'resize', function () {
-      return _this.equalize();
-    }, 250);
-    (0, _helpers.attach)(window, 'resize', function () {
-      _this.rows = _this.getRows();
+    // The block is the whole AccordionBlock container
+    this.block = block; // Here we can add some custom settings!
 
-      _this.equalize();
-    }, 2500);
+    this.settings = {
+      "class": 'js-accordion-block',
+      duration: 750 //ms
+
+    };
+    this.openEvents = 0;
+    this.closeEvents = 0; // ObjectAssign all the user's options
+
+    for (var key in this.settings) {
+      // Just check if the key exists in the user's options and if it does override the defaults
+      if (options[key]) this.settings[key] = options[key];
+    } // Initialise the accordion block
+
+
+    this.init();
   }
 
-  _createClass(Equalizer, [{
-    key: "equalize",
-    value: function equalize() {
+  _createClass(AccordionBlock, [{
+    key: "init",
+    value: function init() {
+      var _this = this;
+
+      // This will store all the relevant elements for us
+      this.elements = {}; // Find the item elements. This will be found using this.settings.class followed by --item
+
+      this.elements.items = this.block.querySelectorAll(".".concat(this.settings["class"], "--item")) || false; // Ideally we want the elements in an array, not a nodeList
+
+      this.items = []; // Loop the nodeList and push each element inside of an object to the items array
+
+      for (var i = 0; i < this.elements.items.length; i++) {
+        this.items.push({
+          item: this.elements.items[i],
+          // Find the trigger element
+          trigger: this.elements.items[i].querySelector(".".concat(this.settings["class"], "--trigger")) || false,
+          // Find the target element
+          target: this.elements.items[i].querySelector(".".concat(this.settings["class"], "--target")) || false,
+          open: false,
+          // We'll use this for the animations :)
+          height: {
+            current: 0,
+            target: 0,
+            full: 0
+          }
+        });
+      } // loop the items
+
+
+      this.items.forEach(function (item) {
+        // If we have both a trigger and a target
+        if (item.trigger && item.target) {
+          // When we click the trigger
+          item.trigger.addEventListener('click', function (e) {
+            e.preventDefault(); // Set the item's current height to it's current height ¯\_(ツ)_/¯
+
+            item.height.current = item.target.offsetHeight; // Set the target's height to auto!
+
+            item.target.style.height = 'auto'; // Save the target's height
+
+            item.height.full = item.target.offsetHeight; // Set the target's height to auto!
+
+            item.target.style.height = item.height.current + 'px';
+
+            if (item.open) {
+              // It is no longer open
+              item.open = false; // Toggle some classes for css usage
+
+              item.item.classList.add("".concat(_this.settings["class"], "--closed"));
+              item.item.classList.remove("".concat(_this.settings["class"], "--open")); // Set the target height to 0!
+
+              item.height.target = 0; // Now we need to animate this change
+
+              _this.close(item);
+            } else {
+              // It is no longer closed
+              item.open = true; // Toggle some classes for css usage
+
+              item.item.classList.add("".concat(_this.settings["class"], "--open"));
+              item.item.classList.remove("".concat(_this.settings["class"], "--closed")); // Set the target height to full!
+
+              item.height.target = item.height.full; // Now we need to animate this change
+
+              _this.open(item);
+            }
+          });
+        }
+      });
+    }
+  }, {
+    key: "ease",
+    value: function ease(a, b) {
+      // Some carzy easing maths I dont understand ¯\_(ツ)_/¯
+      return ((1 - a / b ^ 2) - 1) * 30 / this.settings.duration * b;
+    }
+  }, {
+    key: "open",
+    value: function open() {
       var _this2 = this;
 
-      clearTimeout(this.timeout);
-      this.timeout = setTimeout(function () {
-        if (_this2.settings.rows) {
-          for (var group in _this2.rows) {
-            _this2.matchHeight(_this2.rows[group]);
-          }
-        } else {
-          _this2.matchHeight(_this2.children);
-        }
-      }, 500);
+      var item = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+      // We need to make sure we have an item, and that it's not already completely open
+      if (item && item.target.offsetHeight < item.height.target) {
+        window.requestAnimationFrame(function () {
+          // Add an eased amount to our current height
+          item.height.current += _this2.ease(item.height.current, item.height.full); // Apply this Math.ceil(height) to our target
+
+          item.target.style.height = Math.ceil(item.height.current) + 'px'; // Continue this function :)
+
+          _this2.open(item);
+        });
+      }
     }
   }, {
-    key: "getChildren",
-    value: function getChildren() {
+    key: "close",
+    value: function close() {
       var _this3 = this;
 
-      this.children = {};
-      this.ids = this.container.getAttribute('data-equalize');
+      var item = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
-      if (this.ids === "") {
-        this.children.main = (0, _helpers.nodeArray)(this.container.querySelectorAll('[data-equalize-watch]'));
-      } else {
-        try {
-          this.container.getAttribute('data-equalize').split(',').forEach(function (id) {
-            return _this3.children[id] = (0, _helpers.nodeArray)(_this3.container.querySelectorAll("[data-equalize-watch=\"".concat(id, "\"]")));
-          });
-        } catch (err) {
-          this.children[this.ids] = (0, _helpers.nodeArray)(this.container.querySelectorAll('[data-equalize-watch]'));
-        }
-      }
+      // We need to make sure we have an item, and that it's not already completely shut
+      if (item && item.target.offsetHeight > item.height.target) {
+        window.requestAnimationFrame(function () {
+          // Remove an eased amount to our current height
+          item.height.current -= _this3.ease(item.height.current, item.height.full); // Apply this Math.floor(height) to our target
 
-      return this.children;
-    }
-  }, {
-    key: "getRows",
-    value: function getRows() {
-      var _this4 = this;
+          item.target.style.height = Math.floor(item.height.current) + 'px'; // Continue this function :)
 
-      this.rows = {};
-      this.matchHeight(this.children);
-      var offsetY = 0;
-
-      var _loop = function _loop(group) {
-        _this4.rows[group] = {};
-
-        _this4.children[group].forEach(function (child) {
-          offsetY = (0, _helpers.offset)(child).y;
-          _this4.rows[group][offsetY] ? _this4.rows[group][offsetY].push(child) : _this4.rows[group][offsetY] = [child];
+          _this3.close(item);
         });
-      };
-
-      for (var group in this.children) {
-        _loop(group);
       }
-
-      return this.rows;
-    }
-  }, {
-    key: "matchHeight",
-    value: function matchHeight() {
-      var _this5 = this;
-
-      var children = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      clearTimeout(window.equalizing); // Check to see if we passed in some children or not
-
-      if (children === false) children = this.children; // loop through all the child groups
-
-      for (var group in children) {
-        // initialise the height at 0 for each group
-        this.height = 0; // set height to auto so it can be adjusted
-
-        children[group].forEach(function (child) {
-          child.style.height = 'auto';
-        }); // set the height to the child's height if it is larger than the previous child
-
-        children[group].forEach(function (child) {
-          if (child.clientHeight > _this5.height) _this5.height = child.clientHeight;
-        }); // set all children to the same height
-
-        children[group].forEach(function (child) {
-          return child.style.height = _this5.height + 'px';
-        });
-      } // send the equalized event to the window
-
-
-      this.complete();
-    }
-  }, {
-    key: "complete",
-    value: function complete() {
-      var _this6 = this;
-
-      window.equalizing = setTimeout(function () {
-        window.dispatchEvent(_this6.event);
-      }, 100);
-    }
-  }, {
-    key: "update",
-    value: function update() {
-      this.children = this.getChildren();
-      this.rows = this.getRows();
-      this.equalize();
     }
   }]);
 
-  return Equalizer;
+  return AccordionBlock;
 }();
 
-var _default = Equalizer; // ======================================================
-// JavaScript Usage
-// ======================================================
-// import Equalizer from './equalizer';
-// document.querySelectorAll('[data-equalize]').forEach((group) => new Equalizer(group));
-// ======================================================
-// HTML Usage
-// ======================================================
-// <section data-equalize>
-//   <div data-equalize-watch></div>
-//   <div data-equalize-watch></div>
-// </section>
-// OR ===================================================
-// <section data-equalize="selector">
-//   <div data-equalize-watch="selector"></div>
-//   <div data-equalize-watch="selector"></div>
-// </section>
-// OR ===================================================
-// <section data-equalize="selector1, selector2">
-//   <div data-equalize-watch="selector1">
-//      <div data-equalize-watch="selector2"></div>
-//   </div>
-//   <div data-equalize-watch="selector1">
-//      <div data-equalize-watch="selector2"></div>
-//   </div>
-// </section>
-
-exports["default"] = _default;
+exports["default"] = AccordionBlock;

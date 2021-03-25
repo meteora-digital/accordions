@@ -16,9 +16,7 @@
   ],
   "author": "Emmanuel Davies",
   "license": "MIT",
-  "dependencies": {
-    "throttled-animation-frame": "latest"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.10.2",
     "@babel/preset-env": "^7.11.0",
