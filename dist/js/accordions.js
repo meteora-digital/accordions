@@ -12,20 +12,20 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 /* -------------------------------------------------
-Accordion BLock class to handle the opening/closing
-of the accoridon blocks!
+Accordion class to handle the opening/closing
+of any accoridon content!
 ------------------------------------------------- */
-var AccordionBlock = /*#__PURE__*/function () {
-  function AccordionBlock(block) {
+var Accordion = /*#__PURE__*/function () {
+  function Accordion(block) {
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-    _classCallCheck(this, AccordionBlock);
+    _classCallCheck(this, Accordion);
 
     // The block is the whole AccordionBlock container
     this.block = block; // Here we can add some custom settings!
 
     this.settings = {
-      "class": 'js-accordion-block',
+      "class": 'js-accordion',
       duration: 750 //ms
 
     };
@@ -41,7 +41,7 @@ var AccordionBlock = /*#__PURE__*/function () {
     this.init();
   }
 
-  _createClass(AccordionBlock, [{
+  _createClass(Accordion, [{
     key: "init",
     value: function init() {
       var _this = this;
@@ -157,7 +157,7 @@ var AccordionBlock = /*#__PURE__*/function () {
     }
   }]);
 
-  return AccordionBlock;
+  return Accordion;
 }();
 
-exports["default"] = AccordionBlock;
+exports["default"] = Accordion;
