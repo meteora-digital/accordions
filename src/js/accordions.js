@@ -17,7 +17,7 @@ export default class Accordion {
     // ObjectAssign all the user's options
     for (let key in this.settings) {
       // Just check if the key exists in the user's options and if it does override the defaults
-      if (options[key]) this.settings[key] = options[key];
+      if (options[key] != undefined) this.settings[key] = options[key];
     }
 
     // Initialise the accordion block
