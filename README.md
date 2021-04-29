@@ -1,4 +1,4 @@
-# Accordions
+# Accordions (under construction)
 
 Accordions is an es6 Class which can be used to easily control the opening / closing of accordion content.
 
@@ -29,6 +29,7 @@ import Accordion from 'accordions';
 new Accordion(document.querySelector('.js-accordion'), {
   class: 'js-accordion',
   duration: 750, //ms
+  closeOthers: true,
 });
 ```
 

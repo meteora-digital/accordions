@@ -1,10 +1,10 @@
 {
   "name": "accordions",
-  "version": "0.0.2",
-  "description": "An es6 class to control accordion content.",
+  "version": "0.1.1",
+  "description": "Under Construction: An es6 class to control accordion content.",
   "main": "dist/js/accordions.js",
   "scripts": {
-    "test": "echo \"Accordions!\""
+    "test": "npm i && gulp"
   },
   "keywords": [
     "accordion",
