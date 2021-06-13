@@ -1,6 +1,6 @@
 {
   "name": "accordions",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Under Construction: An es6 class to control accordion content.",
   "main": "dist/js/accordions.js",
   "scripts": {
