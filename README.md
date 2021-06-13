@@ -1,4 +1,4 @@
-# Accordions (under construction)
+# Accordions
 
 Accordions is a class which can be used to easily control the opening / closing of accordion content.
 
