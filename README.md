@@ -1,12 +1,11 @@
 # Accordions (under construction)
 
-Accordions is an es6 Class which can be used to easily control the opening / closing of accordion content.
+Accordions is a class which can be used to easily control the opening / closing of accordion content.
 
 ## Installation
 
-with webpack
-
 ```bash
+npmi accordions
 yarn add accordions
 ```
 
@@ -26,12 +25,37 @@ yarn add accordions
 ```es6
 import Accordion from 'accordions';
 
-new Accordion(document.querySelector('.js-accordion'), {
-  class: 'js-accordion',
-  duration: 750, //ms
-  closeOthers: true,
+const AccordionContent = new Accordion(document.querySelector('.js-accordion'), {
+  multiple: false,
 });
 ```
+
+| Option | Type | Description | Default |
+|--------|------|-------------|---------|
+| multiple | boolean | if false opening an item will close the others | false |
+
+
+#### Adding Accordion Items
+
+```javascript
+AccordionContent.add(element, {
+  active: false,
+  trigger: element.firstElementChild,
+  target: element.lastElementChild,
+});
+```
+
+The add method will load the accordion with a new item.
+the tween() method takes 2 arguments. 
+The first argument is the element containing the accordion content.
+The second argument is the user options
+
+| Option | Type | Description | Defaults |
+|--------|------|-------------|----------|
+| active | boolean | If true the item will be open on page load | false |
+| trigger | element | The element that we will click on to open the accordion item | the accordion item element's first child |
+| target | element | The element that we will open and close to reveal some content | the accordion item element's last child |
+
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
