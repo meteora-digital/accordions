@@ -5,7 +5,7 @@ Accordions is a class which can be used to easily control the opening / closing 
 ## Installation
 
 ```bash
-npmi accordions
+npm i accordions
 yarn add accordions
 ```
 
