@@ -30,6 +30,8 @@ var Accordion = /*#__PURE__*/function () {
     this.items = []; // The user settings / defaults
 
     this.settings = {
+      fps: 60,
+      duration: 400,
       multiple: false
     }; // Object assign the settings
 
@@ -47,7 +49,7 @@ var Accordion = /*#__PURE__*/function () {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       if (element.nodeType) {
-        var Item = new AccordionItem(element, options); // If we have a trigger and a target and they are both elements
+        var Item = new AccordionItem(element, options, this.settings); // If we have a trigger and a target and they are both elements
 
         if (Item.trigger && Item.trigger.nodeType && Item.target && Item.target.nodeType) {
           // Add a click event to the item
@@ -89,15 +91,14 @@ exports["default"] = Accordion;
 var AccordionItem = /*#__PURE__*/function () {
   function AccordionItem(element) {
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var base = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
     _classCallCheck(this, AccordionItem);
 
     // Grab the element
     this.element = element; // This will store some height data for us
 
-    this.height = {}; // The animation controller
-
-    this.controller = new _tween["default"](); // The user and default settings
+    this.height = {}; // The user and default settings
 
     this.settings = {
       active: false,
@@ -106,17 +107,15 @@ var AccordionItem = /*#__PURE__*/function () {
     }; // Object assign the settings
 
     for (var key in this.settings) {
-      if (this.settings.hasOwnProperty(key) && options.hasOwnProperty(key)) this.settings[key] = options[key];
-    } // The element that we will interact with
+      if (this.settings.hasOwnProperty(key) && options.hasOwnProperty(key)) this[key] = options[key];
+    } // reset the settings to become the Accordion settings because we dont need them now
 
 
-    this.trigger = this.settings.trigger; // The element that will open / close
+    this.settings = base; // The animation controller
 
-    this.target = this.settings.target; // An active state for the accordion item
-
-    this.active = this.settings.active; // Remove the settings because we dont need them now
-
-    delete this.settings; // Initialise the styles
+    this.controller = new _tween["default"]({
+      fps: this.settings.fps
+    }); // Initialise the styles
 
     if (this.active) this.element.classList.add('active');
     this.target.style.height = this.active ? 'auto' : '0px';
@@ -169,7 +168,7 @@ var AccordionItem = /*#__PURE__*/function () {
         to: this.active ? 0 : this.height["new"]
       }, function (value) {
         return _this2.target.style.height = value + 'px';
-      }, 400);
+      }, this.settings.duration);
     }
   }]);
 

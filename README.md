@@ -26,12 +26,16 @@ yarn add accordions
 import Accordion from 'accordions';
 
 const AccordionContent = new Accordion(document.querySelector('.js-accordion'), {
+  fps: 60,
+  duration: 400,
   multiple: false,
 });
 ```
 
 | Option | Type | Description | Default |
 |--------|------|-------------|---------|
+| fps | number | the number of frames per second that we animate the content | 60 |
+| duration | number | number in milliseconds that the content will open or close in | 400 |
 | multiple | boolean | if false opening an item will close the others | false |
 
 

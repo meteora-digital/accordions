@@ -17,6 +17,8 @@ export default class Accordion {
 
     // The user settings / defaults
     this.settings = {
+      fps: 60,
+      duration: 400,
       multiple: false,
     }
 
@@ -29,7 +31,7 @@ export default class Accordion {
   // This will set up an accoridon item and place it into the items array
   add(element, options = {}) {
     if (element.nodeType) {
-      const Item = new AccordionItem(element, options);
+      const Item = new AccordionItem(element, options, this.settings);
 
       // If we have a trigger and a target and they are both elements
       if (Item.trigger && Item.trigger.nodeType && Item.target && Item.target.nodeType) {
@@ -64,13 +66,11 @@ export default class Accordion {
 }
 
 class AccordionItem {
-  constructor(element, options = {}) {
+  constructor(element, options = {}, base = {}) {
     // Grab the element
     this.element = element;
     // This will store some height data for us
     this.height = {};
-    // The animation controller
-    this.controller = new Tween;
 
     // The user and default settings
     this.settings = {
@@ -81,18 +81,16 @@ class AccordionItem {
 
     // Object assign the settings
     for (let key in this.settings) {
-      if (this.settings.hasOwnProperty(key) && options.hasOwnProperty(key)) this.settings[key] = options[key];
+      if (this.settings.hasOwnProperty(key) && options.hasOwnProperty(key)) this[key] = options[key];
     }
 
-    // The element that we will interact with
-    this.trigger = this.settings.trigger;
-    // The element that will open / close
-    this.target = this.settings.target;
-    // An active state for the accordion item
-    this.active = this.settings.active;
+    // reset the settings to become the Accordion settings because we dont need them now
+    this.settings = base;
 
-    // Remove the settings because we dont need them now
-    delete this.settings;
+    // The animation controller
+    this.controller = new Tween({
+      fps: this.settings.fps,
+    });
 
     // Initialise the styles
     if (this.active) this.element.classList.add('active');
@@ -139,6 +137,6 @@ class AccordionItem {
       from: this.height.current,
       // If it is active, set the height to 0 otherwise set it to full height
       to: (this.active) ? 0 : this.height.new,
-    }, (value) => this.target.style.height = value + 'px', 400);
+    }, (value) => this.target.style.height = value + 'px', this.settings.duration);
   }
 }
