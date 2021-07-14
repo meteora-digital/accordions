@@ -1,7 +1,7 @@
 {
   "name": "accordions",
   "version": "1.1.1",
-  "description": "Under Construction: An es6 class to control accordion content.",
+  "description": "ES6 Class to make creating accordions easy, with smooth animation.",
   "main": "dist/js/accordions.js",
   "scripts": {
     "test": "npm i && gulp"
