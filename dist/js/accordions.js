@@ -102,6 +102,7 @@ var AccordionItem = /*#__PURE__*/function () {
 
     this.settings = {
       active: false,
+      minHeight: 0,
       trigger: this.element.firstElementChild,
       target: this.element.lastElementChild
     }; // Object assign the settings
@@ -120,7 +121,7 @@ var AccordionItem = /*#__PURE__*/function () {
     }); // Initialise the styles
 
     if (this.active) this.element.classList.add('active');
-    this.target.style.height = this.active ? 'auto' : '0px';
+    this.target.style.height = this.active ? 'auto' : "".concat(this.settings.minHeight, "px");
   }
 
   _createClass(AccordionItem, [{
@@ -167,7 +168,7 @@ var AccordionItem = /*#__PURE__*/function () {
         // We will always animate from the current height
         from: this.height.current,
         // If it is active, set the height to 0 otherwise set it to full height
-        to: this.active ? 0 : this.height["new"]
+        to: this.active ? this.settings.minHeight : this.height["new"]
       }, function (value) {
         return _this2.target.style.height = value + 'px';
       }, this.settings.duration);

@@ -57,6 +57,7 @@ The second argument is the user options
 | Option | Type | Description | Defaults |
 |--------|------|-------------|----------|
 | active | boolean | If true the item will be open on page load | false |
+| minHeight | number | Just in case you dont want the accordion to close all the way | 0 |
 | trigger | element | The element that we will click on to open the accordion item | the accordion item element's first child |
 | target | element | The element that we will open and close to reveal some content | the accordion item element's last child |
 

@@ -75,6 +75,7 @@ class AccordionItem {
     // The user and default settings
     this.settings = {
       active: false,
+      minHeight: 0,
       trigger: this.element.firstElementChild,
       target: this.element.lastElementChild,
     }
@@ -96,7 +97,7 @@ class AccordionItem {
 
     // Initialise the styles
     if (this.active) this.element.classList.add('active');
-    this.target.style.height = (this.active) ? 'auto' : '0px';
+    this.target.style.height = (this.active) ? 'auto' : `${this.settings.minHeight}px`;
   }
 
   open() {
@@ -138,7 +139,7 @@ class AccordionItem {
       // We will always animate from the current height
       from: this.height.current,
       // If it is active, set the height to 0 otherwise set it to full height
-      to: (this.active) ? 0 : this.height.new,
+      to: (this.active) ? this.settings.minHeight : this.height.new,
     }, (value) => this.target.style.height = value + 'px', this.settings.duration);
   }
 }
