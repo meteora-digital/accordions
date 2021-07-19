@@ -44,6 +44,7 @@ const AccordionContent = new Accordion(document.querySelector('.js-accordion'), 
 ```javascript
 AccordionContent.add(element, {
   active: false,
+  minHeight: 0,
   trigger: element.firstElementChild,
   target: element.lastElementChild,
 });
