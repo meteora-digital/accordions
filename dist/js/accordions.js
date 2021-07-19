@@ -107,7 +107,9 @@ var AccordionItem = /*#__PURE__*/function () {
     }; // Object assign the settings
 
     for (var key in this.settings) {
-      if (this.settings.hasOwnProperty(key) && options.hasOwnProperty(key)) this[key] = options[key];
+      if (this.settings.hasOwnProperty(key)) {
+        options.hasOwnProperty(key) ? this[key] = options[key] : this[key] = this.settings[key];
+      }
     } // reset the settings to become the Accordion settings because we dont need them now
 
 
