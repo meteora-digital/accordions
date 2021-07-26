@@ -139,7 +139,7 @@ class AccordionItem {
       // We will always animate from the current height
       from: this.height.current,
       // If it is active, set the height to 0 otherwise set it to full height
-      to: (this.active) ? this.settings.minHeight : this.height.new,
+      to: (this.active) ? this.minHeight : this.height.new,
     }, (value) => this.target.style.height = value + 'px', this.settings.duration);
   }
 }
